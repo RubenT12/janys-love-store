@@ -1,22 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { supabase } from '../supabaseClient'; // Asegúrate que esté bien importado
+import ProductForm from './components/ProductForm';
 
-const products = [
-  { id: 1, name: "Coach For Men", price: 1800, image: "/images/coach.jpg", category: "Perfumes" },
-  { id: 2, name: "Paris Hilton", price: 850, image: "/images/paris.jpg", category: "Perfumes" },
-  { id: 3, name: "Pure Seduction", price: 480, image: "/images/pure.jpg", category: "Victoria's Secret" },
-  { id: 4, name: "Hot Wheels", price: 210, image: "/images/hotwheels.jpg", category: "Juguetes" },
-  { id: 5, name: "Slime Kit", price: 280, image: "/images/slime.jpg", category: "Juguetes" },
-  { id: 6, name: "Superman Figure", price: 320, image: "/images/superman.jpg", category: "Juguetes" }
-];
+
+
 
 export default function App() {
-  const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem("cart")) || []);
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('cart')) || []);
   const [filter, setFilter] = useState("Todos");
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data, error } = await supabase.from('products').select('*');
+      if (error) {
+        console.error("Error fetching products:", error);
+      } else {
+        setProducts(data);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const addToCart = (item) => {
     setCart([...cart, item]);
@@ -38,22 +48,28 @@ export default function App() {
               <option key={cat}>{cat}</option>
             ))}
           </select>
-          <span className="text-rose-600 font-semibold">🛒 {cart.length}</span>
+          <div className="text-sm">🛒 {cart.length}</div>
         </div>
       </header>
+      <ProductForm />
       <main className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {filteredProducts.map(product => (
           <motion.div
             key={product.id}
-            whileHover={{ scale: 1.05 }}
-            className="bg-white rounded-xl shadow border"
+            className="bg-white rounded-2xl shadow-md overflow-hidden"
+            whileHover={{ scale: 1.02 }}
           >
-            <img src={product.image} alt={product.name} className="h-48 w-full object-cover" />
+            <img
+              src={`/images/${product.image}`}
+              alt={product.name}
+              className="w-full h-60 object-cover rounded-t-2xl"
+            />
             <div className="p-4">
-              <h2 className="font-bold text-lg">{product.name}</h2>
-              <p className="text-rose-500 font-semibold">${product.price} MXN</p>
+              <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
+              <p className="text-sm text-gray-600 mb-2">{product.description}</p>
+              <p className="text-lg font-bold text-pink-600">${product.price.toLocaleString()} MXN</p>
               <button
-                className="mt-2 px-3 py-1 text-sm bg-rose-500 text-white rounded"
+                className="mt-3 w-full bg-pink-500 text-white p-2 rounded hover:bg-pink-600"
                 onClick={() => addToCart(product)}
               >
                 Agregar al carrito
@@ -62,15 +78,15 @@ export default function App() {
           </motion.div>
         ))}
       </main>
-
-      <a
-        href="https://wa.me/526643050837?text=Hola%20Jany,%20quiero%20hacer%20un%20pedido%20desde%20la%20tienda%20en%20línea"
-        className="fixed bottom-4 right-4 bg-green-500 text-white rounded-full px-4 py-3 shadow-lg text-sm hover:bg-green-600"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        📱 Pedir por WhatsApp
-      </a>
+<a
+  href={`https://wa.me/526643050837?text=Hola Jany, quiero hacer un pedido con los siguientes productos: ${cart.map(p => `${p.name} ($${p.price} MXN)`).join(', ')}`}
+  className="fixed bottom-4 right-4 bg-green-500 text-white rounded-full px-4 py-3 shadow-lg text-sm hover:bg-green-600"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  📩 Pedir por WhatsApp
+</a>
     </div>
   );
 }
+
