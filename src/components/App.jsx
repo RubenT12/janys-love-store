@@ -51,7 +51,12 @@ export default function App() {
           <div className="text-sm">🛒 {cart.length}</div>
         </div>
       </header>
+      
+      <div className="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-md my-6 border border-gray-200">
+      <h2 className="text-xl font-semibold mb-4 text-center text-rose-500">Agregar nuevo producto</h2>
       <ProductForm />
+      </div>
+
       <main className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {filteredProducts.map(product => (
           <motion.div
