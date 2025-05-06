@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { supabase } from '../supabaseClient'; // Asegúrate que esté bien importado
-import ProductForm from './components/ProductForm';
+import supabase from '../supabaseClient';
+import ProductForm from "./ProductForm";
+
 
 
 
